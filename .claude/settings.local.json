@@ -1,0 +1,30 @@
+{
+  "env": {
+    "CLAUDE_CODE_ENABLE_TELEMETRY": "1",
+    "DISABLE_PROMPT_CACHING": "0",
+    "MCP_TIMEOUT": "30000",
+    "OTEL_METRIC_EXPORT_INTERVAL": "10000",
+    "NODE_ENV": "development"
+  },
+  "permissions": {
+    "allow": [
+      "Bash(ls:*)",
+      "Bash(git add:*)",
+      "Bash(mkdir:*)"
+    ],
+    "deny": []
+  },
+  "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "*",
+        "hooks": [
+          {
+            "type": "command",
+            "command": ".claude/hooks.sh"
+          }
+        ]
+      }
+    ]
+  }
+}

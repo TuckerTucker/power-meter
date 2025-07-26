@@ -1,0 +1,458 @@
+{
+  "analysis_metadata": {
+    "analysis_date": "2025-07-26",
+    "tool": "technical-debt-analyzer",
+    "repository": "power-meter",
+    "scope": "full_project_assessment"
+  },
+  "summary": {
+    "totalIssues": 15,
+    "criticalIssues": 4,
+    "highIssues": 6,
+    "mediumIssues": 4,
+    "lowIssues": 1,
+    "score": 25,
+    "risk_level": "high",
+    "immediate_action_required": true
+  },
+  "findings": [
+    {
+      "id": "DEBT-001",
+      "title": "Fatal Error Handling with os.Exit()",
+      "severity": "critical",
+      "category": "architecture_debt",
+      "description": "Application terminates entire process on TCP accept errors instead of graceful error handling. Developer comment indicates awareness: 'FIXME should not Exit() here'",
+      "location": {
+        "file": "/Volumes/tkr-riffic/@tkr-projects/power-meter/power-meter.go",
+        "line": 75,
+        "function": "ServeCounterValue"
+      },
+      "impact": "Single network error can crash entire power monitoring service, losing accumulated data and requiring manual restart",
+      "remediation": "Implement proper error handling with retry logic, connection pooling, and graceful degradation instead of immediate termination",
+      "effort": "medium",
+      "debt_type": "technical_risk",
+      "business_impact": "service_availability",
+      "priority": 1,
+      "estimated_hours": 8
+    },
+    {
+      "id": "DEBT-002",
+      "title": "Missing Go Modules and Dependency Management",
+      "severity": "critical",
+      "category": "dependency_debt",
+      "description": "Project lacks go.mod/go.sum files, uses deprecated GOPATH-style dependency management, and relies on unversioned external dependency",
+      "location": {
+        "file": "/Volumes/tkr-riffic/@tkr-projects/power-meter",
+        "line": null,
+        "function": "project_root"
+      },
+      "impact": "Unpredictable builds, security vulnerabilities, supply chain attacks, and inability to track dependency versions",
+      "remediation": "Initialize Go modules with 'go mod init', add versioning for github.com/brian-armstrong/gpio dependency, and implement dependency scanning",
+      "effort": "low",
+      "debt_type": "dependency_management",
+      "business_impact": "security_risk",
+      "priority": 2,
+      "estimated_hours": 4
+    },
+    {
+      "id": "DEBT-003",
+      "title": "Complete Absence of Testing Infrastructure",
+      "severity": "critical",
+      "category": "quality_debt",
+      "description": "No unit tests, integration tests, or testing framework present in the codebase",
+      "location": {
+        "file": "/Volumes/tkr-riffic/@tkr-projects/power-meter",
+        "line": null,
+        "function": "project_root"
+      },
+      "impact": "High risk of regressions, difficult refactoring, no confidence in code changes, and manual testing burden",
+      "remediation": "Implement unit tests for Counter logic, integration tests for GPIO and TCP server, and mock GPIO for testing",
+      "effort": "high",
+      "debt_type": "testing_infrastructure",
+      "business_impact": "development_velocity",
+      "priority": 3,
+      "estimated_hours": 20
+    },
+    {
+      "id": "DEBT-004",
+      "title": "Hardcoded Configuration Values",
+      "severity": "critical",
+      "category": "architecture_debt",
+      "description": "GPIO pin, host, and port are hardcoded constants requiring recompilation for environment changes",
+      "location": {
+        "file": "/Volumes/tkr-riffic/@tkr-projects/power-meter/power-meter.go",
+        "line": 13,
+        "function": "constants"
+      },
+      "impact": "Limited deployment flexibility, requires recompilation for different environments, and difficult multi-instance deployment",
+      "remediation": "Implement configuration file support (YAML/JSON) or environment variable configuration with sensible defaults",
+      "effort": "medium",
+      "debt_type": "configuration_management",
+      "business_impact": "deployment_flexibility",
+      "priority": 4,
+      "estimated_hours": 6
+    },
+    {
+      "id": "DEBT-005",
+      "title": "Potential GPIO Resource Leak",
+      "severity": "high",
+      "category": "performance_debt",
+      "description": "GPIO watcher is created but only closed on defer in main(), no error handling for watcher failures",
+      "location": {
+        "file": "/Volumes/tkr-riffic/@tkr-projects/power-meter/power-meter.go",
+        "line": 98,
+        "function": "main"
+      },
+      "impact": "GPIO resources may not be properly released on unexpected termination, potentially affecting other GPIO applications",
+      "remediation": "Add signal handling for graceful shutdown, implement proper GPIO cleanup on errors, and add watcher error handling",
+      "effort": "medium",
+      "debt_type": "resource_management",
+      "business_impact": "system_stability",
+      "priority": 5,
+      "estimated_hours": 8
+    },
+    {
+      "id": "DEBT-006",
+      "title": "Insecure TCP Server Binding",
+      "severity": "high",
+      "category": "security_debt",
+      "description": "TCP server binds to 0.0.0.0 (all interfaces) without authentication or access control",
+      "location": {
+        "file": "/Volumes/tkr-riffic/@tkr-projects/power-meter/power-meter.go",
+        "line": 15,
+        "function": "constants"
+      },
+      "impact": "Power meter data exposed to entire network without authentication, potential DoS attacks, and unauthorized data access",
+      "remediation": "Bind to localhost by default, implement authentication, add rate limiting, and provide secure remote access options",
+      "effort": "high",
+      "debt_type": "security_vulnerability",
+      "business_impact": "security_risk",
+      "priority": 6,
+      "estimated_hours": 12
+    },
+    {
+      "id": "DEBT-007",
+      "title": "Lack of Logging and Observability",
+      "severity": "high",
+      "category": "maintenance_debt",
+      "description": "No structured logging, metrics, or monitoring capabilities for production deployment",
+      "location": {
+        "file": "/Volumes/tkr-riffic/@tkr-projects/power-meter/power-meter.go",
+        "line": null,
+        "function": "entire_application"
+      },
+      "impact": "Difficult troubleshooting, no operational visibility, inability to monitor system health, and poor debugging experience",
+      "remediation": "Implement structured logging (logrus/zap), add metrics collection, and provide health check endpoints",
+      "effort": "medium",
+      "debt_type": "observability",
+      "business_impact": "operational_efficiency",
+      "priority": 7,
+      "estimated_hours": 10
+    },
+    {
+      "id": "DEBT-008",
+      "title": "Deprecated GPIO Library Dependency",
+      "severity": "high",
+      "category": "dependency_debt",
+      "description": "Uses github.com/brian-armstrong/gpio which appears to be unmaintained and potentially deprecated",
+      "location": {
+        "file": "/Volumes/tkr-riffic/@tkr-projects/power-meter/power-meter.go",
+        "line": 9,
+        "function": "import"
+      },
+      "impact": "Security vulnerabilities, lack of bug fixes, incompatibility with newer Go versions, and potential supply chain risks",
+      "remediation": "Migrate to actively maintained GPIO library like periph.io or go-rpio, or implement native /dev/gpiochip access",
+      "effort": "high",
+      "debt_type": "dependency_modernization",
+      "business_impact": "long_term_maintenance",
+      "priority": 8,
+      "estimated_hours": 16
+    },
+    {
+      "id": "DEBT-009",
+      "title": "Inefficient Counter Implementation",
+      "severity": "high",
+      "category": "performance_debt",
+      "description": "Channel-based counter creates new goroutine for each TCP request, potential goroutine leak and performance issues under load",
+      "location": {
+        "file": "/Volumes/tkr-riffic/@tkr-projects/power-meter/power-meter.go",
+        "line": 79,
+        "function": "ServeCounterValue"
+      },
+      "impact": "Memory leaks under high request load, potential resource exhaustion, and poor performance with multiple concurrent clients",
+      "remediation": "Implement connection pooling, reuse goroutines, add request rate limiting, and consider mutex-based counter for better performance",
+      "effort": "medium",
+      "debt_type": "performance_optimization",
+      "business_impact": "scalability",
+      "priority": 9,
+      "estimated_hours": 12
+    },
+    {
+      "id": "DEBT-010",
+      "title": "No Connection Timeout or Resource Limits",
+      "severity": "high",
+      "category": "performance_debt",
+      "description": "TCP connections have no timeouts, limits, or proper resource management",
+      "location": {
+        "file": "/Volumes/tkr-riffic/@tkr-projects/power-meter/power-meter.go",
+        "line": 72,
+        "function": "ServeCounterValue"
+      },
+      "impact": "Resource exhaustion from hanging connections, potential DoS attacks, and unbounded resource consumption",
+      "remediation": "Implement connection timeouts, maximum connection limits, proper connection cleanup, and resource monitoring",
+      "effort": "medium",
+      "debt_type": "resource_management",
+      "business_impact": "system_stability",
+      "priority": 10,
+      "estimated_hours": 8
+    },
+    {
+      "id": "DEBT-011",
+      "title": "Legacy Build System without CI/CD",
+      "severity": "medium",
+      "category": "build_debt",
+      "description": "Simple Makefile without automated testing, linting, security scanning, or continuous integration",
+      "location": {
+        "file": "/Volumes/tkr-riffic/@tkr-projects/power-meter/Makefile",
+        "line": null,
+        "function": "build_system"
+      },
+      "impact": "Manual quality control, inconsistent builds, no automated security scanning, and increased deployment risk",
+      "remediation": "Implement GitHub Actions or similar CI/CD with automated testing, linting (golangci-lint), security scanning, and multi-platform builds",
+      "effort": "medium",
+      "debt_type": "build_automation",
+      "business_impact": "development_velocity",
+      "priority": 11,
+      "estimated_hours": 10
+    },
+    {
+      "id": "DEBT-012",
+      "title": "No Data Persistence or Recovery",
+      "severity": "medium",
+      "category": "architecture_debt",
+      "description": "Counter value is lost on application restart, no persistence mechanism for accumulated power readings",
+      "location": {
+        "file": "/Volumes/tkr-riffic/@tkr-projects/power-meter/power-meter.go",
+        "line": 40,
+        "function": "CreateTickCounter"
+      },
+      "impact": "Data loss on restart, inability to maintain long-term power usage records, and poor reliability for monitoring applications",
+      "remediation": "Implement periodic counter persistence to file/database, add recovery mechanism on startup, and consider checkpointing strategy",
+      "effort": "medium",
+      "debt_type": "data_persistence",
+      "business_impact": "data_integrity",
+      "priority": 12,
+      "estimated_hours": 12
+    },
+    {
+      "id": "DEBT-013",
+      "title": "Inadequate Documentation and Code Comments",
+      "severity": "medium",
+      "category": "maintenance_debt",
+      "description": "Limited inline documentation, no API documentation, and missing deployment/troubleshooting guides",
+      "location": {
+        "file": "/Volumes/tkr-riffic/@tkr-projects/power-meter",
+        "line": null,
+        "function": "project_documentation"
+      },
+      "impact": "Difficult onboarding for new developers, challenging maintenance, and poor knowledge transfer",
+      "remediation": "Add comprehensive code comments, create API documentation, write deployment guides, and document troubleshooting procedures",
+      "effort": "low",
+      "debt_type": "documentation",
+      "business_impact": "maintainability",
+      "priority": 13,
+      "estimated_hours": 8
+    },
+    {
+      "id": "DEBT-014",
+      "title": "Missing Health Check and Status Endpoints",
+      "severity": "medium",
+      "category": "maintenance_debt",
+      "description": "No health check endpoints for monitoring system status, GPIO connectivity, or application health",
+      "location": {
+        "file": "/Volumes/tkr-riffic/@tkr-projects/power-meter/power-meter.go",
+        "line": null,
+        "function": "tcp_server"
+      },
+      "impact": "Difficult to monitor in production, no automated health checking, and poor integration with monitoring systems",
+      "remediation": "Add /health endpoint, GPIO status checks, system metrics endpoint, and integrate with monitoring tools",
+      "effort": "low",
+      "debt_type": "monitoring",
+      "business_impact": "operational_efficiency",
+      "priority": 14,
+      "estimated_hours": 6
+    },
+    {
+      "id": "DEBT-015",
+      "title": "Inconsistent Error Handling Patterns",
+      "severity": "low",
+      "category": "maintenance_debt",
+      "description": "Mix of os.Exit() and proper error handling throughout the codebase creates inconsistent error management",
+      "location": {
+        "file": "/Volumes/tkr-riffic/@tkr-projects/power-meter/power-meter.go",
+        "line": 66,
+        "function": "ServeCounterValue"
+      },
+      "impact": "Unpredictable error behavior, difficult debugging, and inconsistent recovery mechanisms",
+      "remediation": "Standardize error handling patterns, implement consistent logging, and define error recovery strategies",
+      "effort": "low",
+      "debt_type": "code_consistency",
+      "business_impact": "maintainability",
+      "priority": 15,
+      "estimated_hours": 4
+    }
+  ],
+  "debt_categories": {
+    "architecture_debt": {
+      "count": 3,
+      "severity_distribution": {"critical": 2, "medium": 1},
+      "estimated_effort_hours": 26
+    },
+    "dependency_debt": {
+      "count": 2,
+      "severity_distribution": {"critical": 1, "high": 1},
+      "estimated_effort_hours": 20
+    },
+    "quality_debt": {
+      "count": 1,
+      "severity_distribution": {"critical": 1},
+      "estimated_effort_hours": 20
+    },
+    "performance_debt": {
+      "count": 3,
+      "severity_distribution": {"high": 3},
+      "estimated_effort_hours": 28
+    },
+    "security_debt": {
+      "count": 1,
+      "severity_distribution": {"high": 1},
+      "estimated_effort_hours": 12
+    },
+    "maintenance_debt": {
+      "count": 4,
+      "severity_distribution": {"high": 1, "medium": 2, "low": 1},
+      "estimated_effort_hours": 28
+    },
+    "build_debt": {
+      "count": 1,
+      "severity_distribution": {"medium": 1},
+      "estimated_effort_hours": 10
+    }
+  },
+  "priority_matrix": {
+    "immediate_action": [
+      "DEBT-001",
+      "DEBT-002",
+      "DEBT-003",
+      "DEBT-004"
+    ],
+    "short_term": [
+      "DEBT-005",
+      "DEBT-006",
+      "DEBT-007",
+      "DEBT-008"
+    ],
+    "medium_term": [
+      "DEBT-009",
+      "DEBT-010",
+      "DEBT-011",
+      "DEBT-012"
+    ],
+    "long_term": [
+      "DEBT-013",
+      "DEBT-014",
+      "DEBT-015"
+    ]
+  },
+  "impact_assessment": {
+    "business_impact": {
+      "service_availability": ["DEBT-001"],
+      "security_risk": ["DEBT-002", "DEBT-006"],
+      "development_velocity": ["DEBT-003", "DEBT-011"],
+      "deployment_flexibility": ["DEBT-004"],
+      "system_stability": ["DEBT-005", "DEBT-010"],
+      "operational_efficiency": ["DEBT-007", "DEBT-014"],
+      "long_term_maintenance": ["DEBT-008"],
+      "scalability": ["DEBT-009"],
+      "data_integrity": ["DEBT-012"],
+      "maintainability": ["DEBT-013", "DEBT-015"]
+    },
+    "risk_factors": {
+      "critical_system_failure": 4,
+      "security_vulnerabilities": 2,
+      "performance_degradation": 3,
+      "maintenance_burden": 6
+    }
+  },
+  "remediation_roadmap": {
+    "phase_1_critical": {
+      "duration": "2-3 weeks",
+      "effort_hours": 42,
+      "items": ["DEBT-001", "DEBT-002", "DEBT-003", "DEBT-004"],
+      "success_criteria": [
+        "Application handles errors gracefully without crashing",
+        "Dependencies are properly versioned and managed",
+        "Basic test coverage implemented",
+        "Configuration externalized"
+      ]
+    },
+    "phase_2_high_priority": {
+      "duration": "4-6 weeks",
+      "effort_hours": 50,
+      "items": ["DEBT-005", "DEBT-006", "DEBT-007", "DEBT-008"],
+      "success_criteria": [
+        "Proper resource management implemented",
+        "Security controls in place",
+        "Observability and monitoring enabled",
+        "Modern dependencies integrated"
+      ]
+    },
+    "phase_3_optimization": {
+      "duration": "3-4 weeks",
+      "effort_hours": 42,
+      "items": ["DEBT-009", "DEBT-010", "DEBT-011", "DEBT-012"],
+      "success_criteria": [
+        "Performance optimized for production load",
+        "CI/CD pipeline operational",
+        "Data persistence implemented"
+      ]
+    },
+    "phase_4_polish": {
+      "duration": "2-3 weeks",
+      "effort_hours": 18,
+      "items": ["DEBT-013", "DEBT-014", "DEBT-015"],
+      "success_criteria": [
+        "Documentation complete",
+        "Monitoring endpoints available",
+        "Code consistency improved"
+      ]
+    }
+  },
+  "recommendations": {
+    "immediate_actions": [
+      "Replace os.Exit() with proper error handling to prevent service crashes",
+      "Initialize Go modules to enable dependency management and security scanning",
+      "Implement basic unit tests to enable safe refactoring",
+      "Externalize configuration to support multiple deployment environments"
+    ],
+    "strategic_improvements": [
+      "Migrate to modern GPIO library for long-term maintainability",
+      "Implement comprehensive security controls for production deployment",
+      "Add observability and monitoring for operational excellence",
+      "Establish CI/CD pipeline for automated quality assurance"
+    ],
+    "architecture_evolution": [
+      "Consider microservice architecture for larger deployments",
+      "Implement data persistence layer for reliability",
+      "Add API versioning for future extensibility",
+      "Plan for horizontal scaling capabilities"
+    ]
+  },
+  "total_effort_estimate": {
+    "hours": 152,
+    "weeks": "19-20 weeks",
+    "developer_effort": "4-5 months part-time",
+    "cost_impact": "high",
+    "roi_timeframe": "6-12 months"
+  }
+}

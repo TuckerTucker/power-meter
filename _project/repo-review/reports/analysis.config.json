@@ -1,0 +1,31 @@
+{
+  "analysis_date": "2025-07-26",
+  "repo_path": "/Volumes/tkr-riffic/@tkr-projects/power-meter",
+  "output_format": "markdown+json",
+  "max_depth": 3,
+  "agents": [
+    "project-structure-analyzer",
+    "vulnerability-scanner", 
+    "secrets-detector",
+    "input-validation-scanner",
+    "auth-security-analyzer",
+    "cryptographic-security-auditor",
+    "error-handling-analyzer",
+    "dependency-security-scanner",
+    "dependency-lifecycle-manager",
+    "container-security-auditor",
+    "accessibility-security-auditor",
+    "api-security-analyzer",
+    "mobile-security-scanner",
+    "code-quality-analyzer",
+    "technical-debt-assessor"
+  ],
+  "execution_tiers": {
+    "foundation": ["project-structure-analyzer"],
+    "tier1_fast": ["vulnerability-scanner", "secrets-detector", "input-validation-scanner"],
+    "tier2_logic": ["auth-security-analyzer", "cryptographic-security-auditor", "error-handling-analyzer"],
+    "tier3_dependencies": ["dependency-security-scanner", "dependency-lifecycle-manager", "container-security-auditor"],
+    "tier4_specialized": ["accessibility-security-auditor", "api-security-analyzer", "mobile-security-scanner"],
+    "quality": ["code-quality-analyzer", "technical-debt-assessor"]
+  }
+}

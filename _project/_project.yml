@@ -1,0 +1,129 @@
+project:
+  name: "TKR Project Kit"
+  version: "1.0.3"
+  description: "Agent-driven development framework with persistent AI memory and automated analysis"
+  author: "TKR"
+  timestamp: "2025-07-26"
+  status: "production-ready"
+
+directories:
+  - path: ".claude/"
+    files:
+      - "settings.local.json": "PreToolUse hooks configuration for MCP automation"
+      - "hooks.sh": "Hook implementation for MCP server management"
+      - "*.sh": "Shell scripts for testing and automation"
+    subdirectories:
+      - path: "agents/"
+        files:
+          - "*.md": "9 specialized agents (structure, context7, business, yaml, security, debt, docs, report, knowledge)"
+      - path: "commands/"
+        files:
+          - "*.md": "11 AI workflow commands (review, graph, yaml, commit, plan, context)"  
+      - path: "settings_ref/"
+        files:
+          - "*.json": "Claude Code configuration examples (balanced, permissive, empty)"
+          - "*.md": "Settings documentation and patterns"
+  - path: "_project/"
+    subdirectories:
+      - path: "_claude/"
+        files:
+          - "*.md": "Claude integration documentation and setup scripts"
+      - path: "mcp-knowledge-graph/"
+        files:
+          - "index.ts": "Production MCP server with security validation and JSONL persistence"
+          - "package.json": "v1.0.3 TypeScript server with Cytoscape ^3.32.0 visualization"
+          - "visualization-template.html": "Interactive graph interface template"
+      - path: "repo-review/"
+        files:
+          - "dashboard.html": "Multi-perspective analysis consolidation interface"
+    files:
+      - "_project.yml": "Semantically compressed project documentation with AI agent specs"
+
+technology:
+  runtime:
+    node: ">=18.0.0"
+    platform: "Cross-platform ES modules with security validation"
+  
+  backend:
+    framework: "@modelcontextprotocol/sdk 1.0.1"
+    language: "TypeScript ^5.6.2"
+    persistence: "JSONL with path traversal protection"
+    
+  frontend:
+    visualization: "cytoscape ^3.32.0 + @types/cytoscape ^3.21.9"
+    interface: "HTML5 interactive graph templates"
+    
+  development:
+    build_system: "TypeScript compiler with ES module output"
+    cli_parsing: "minimist ^1.2.8"
+    automation: "npm scripts with shx cross-platform utilities"
+    hooks_system: "PreToolUse hooks for MCP server lifecycle management"
+    
+  context7_references:
+    - "/modelcontextprotocol/typescript-sdk": "MCP server implementation patterns"
+    - "/cytoscape/cytoscape.js": "Graph visualization and layout algorithms"
+    - "/microsoft/typescript": "Type system and ES module compilation"
+    - "/nodejs/node": "Runtime environment and file system APIs"
+
+purpose:
+  summary: "Agent-driven development framework delivering 90% setup time reduction and persistent AI context"
+  
+  target_users:
+    - "Development teams seeking AI-enhanced workflows"
+    - "Technical leads requiring automated analysis"
+    - "AI-assisted developers needing persistent memory"
+  
+  completed_features:
+    - "Production MCP Knowledge Graph Server (v1.0.3) with security validation"
+    - "9-agent modular architecture for comprehensive project analysis"
+    - "Context7 integration for enhanced AI assistant memory"
+    - "Self-destructing setup automation with git worktree isolation"
+    - "PreToolUse hooks system for automated MCP server management"
+    - "Interactive Cytoscape.js visualization dashboard"
+
+  current_goals:
+    - "Type safety improvements across agent implementations"
+    - "Test coverage implementation for MCP server core"
+    - "Error handling standardization for CLI workflows"
+    - "Performance optimization for graph operations"
+    - "Hook system expansion for comprehensive automation"
+
+architecture:
+  core_patterns:
+    - "Agent-based modular framework with 9 specialized AI components"
+    - "MCP server providing JSONL persistence with security validation"
+    - "Configuration-driven development using semantic YAML compression"
+    - "Git worktree isolation for parallel repository analysis"
+    - "PreToolUse hooks for automated tool lifecycle management"
+    
+  agent_architecture:
+    specialization: "9 agents covering structure, context, business, security, and technical debt"
+    coordination: "Command-driven workflows with consolidated reporting"
+    memory: "Persistent knowledge graph through MCP server integration"
+    
+  security_patterns:
+    path_validation: "Whitelist-based directory access with traversal protection"
+    memory_isolation: "Sandboxed JSONL storage in validated directories"
+    setup_safety: "Self-destructing installation with cleanup verification"
+
+technical_debt:
+  critical_priorities:
+    - "Type safety enforcement across agent implementations"
+    - "Test coverage for MCP server core functionality"
+    - "Standardized error handling patterns for CLI operations"
+  
+  performance_targets:
+    setup_time: "< 2 minutes for complete project initialization"
+    memory_persistence: "Session context maintained across AI interactions"
+    graph_rendering: "Interactive visualization for 1000+ node datasets"
+    parallel_analysis: "Concurrent multi-repository processing via git worktrees"
+
+performance:
+  key_metrics:
+    initialization: "90% reduction in project setup time"
+    memory_efficiency: "Persistent AI context with JSONL compression"
+  
+  targets:
+    setup_automation: "< 2 minutes end-to-end initialization"
+    graph_performance: "Interactive rendering for large knowledge graphs"
+    analysis_throughput: "Parallel repository processing with isolation"

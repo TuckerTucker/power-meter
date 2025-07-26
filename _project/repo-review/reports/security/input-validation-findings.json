@@ -1,0 +1,179 @@
+{
+  "metadata": {
+    "agent": "input-validation-scanner",
+    "version": "1.0.0",
+    "execution_time": "35s",
+    "scan_scope": ["power-meter.go"],
+    "analysis_date": "2025-07-26T10:30:00Z"
+  },
+  "summary": {
+    "total_issues": 8,
+    "critical_issues": 1,
+    "high_issues": 3,
+    "medium_issues": 3,
+    "low_issues": 1,
+    "score": 6.2
+  },
+  "findings": [
+    {
+      "id": "VAL-001",
+      "title": "Integer Overflow Risk in Counter Value",
+      "severity": "critical",
+      "category": "integer_overflow",
+      "description": "Counter value incremented without bounds checking. Long-running application could overflow integer value leading to incorrect readings or potential denial of service.",
+      "location": {"file": "power-meter.go", "line": 47},
+      "evidence": "value++",
+      "impact": "Counter value overflow after ~2.1 billion pulses, resulting in incorrect power readings and potential system malfunction",
+      "remediation": "Implement overflow protection: check if value approaches max int before incrementing, reset or use larger data type (int64)",
+      "effort": "low",
+      "validation_type": "bounds_checking"
+    },
+    {
+      "id": "VAL-002", 
+      "title": "Unvalidated GPIO Pin Configuration",
+      "severity": "high",
+      "category": "input_validation",
+      "description": "GPIO pin number hardcoded without validation. No check if pin number is valid for the target hardware platform.",
+      "location": {"file": "power-meter.go", "line": 13},
+      "evidence": "INPUT_PIN = 27 // GPIO PIN in software (not the hardware pin number)",
+      "impact": "Application may fail to start on different hardware or cause hardware damage with invalid pin numbers",
+      "remediation": "Add GPIO pin validation to ensure pin number is within valid range for target platform (typically 0-40 for Raspberry Pi)",
+      "effort": "low",
+      "validation_type": "hardware_validation"
+    },
+    {
+      "id": "VAL-003",
+      "title": "Missing TCP Connection Timeout",
+      "severity": "high", 
+      "category": "resource_management",
+      "description": "TCP connections accepted without timeout limits. Malicious clients could hold connections open indefinitely causing resource exhaustion.",
+      "location": {"file": "power-meter.go", "line": 72},
+      "evidence": "conn, err := lis.Accept()",
+      "impact": "Denial of service through connection exhaustion, memory leaks from unclosed connections",
+      "remediation": "Implement connection timeouts using SetReadDeadline/SetWriteDeadline and limit concurrent connections",
+      "effort": "medium",
+      "validation_type": "network_security"
+    },
+    {
+      "id": "VAL-004",
+      "title": "Improper Error Handling with os.Exit()",
+      "severity": "high",
+      "category": "error_handling", 
+      "description": "Application exits abruptly on network errors instead of graceful handling. Could be exploited for denial of service.",
+      "location": {"file": "power-meter.go", "line": 75},
+      "evidence": "os.Exit(1) // FIXME should not Exit() here",
+      "impact": "Single network error can crash entire application, losing accumulated counter data",
+      "remediation": "Replace os.Exit() with proper error handling, logging, and connection retry logic",
+      "effort": "medium",
+      "validation_type": "error_handling"
+    },
+    {
+      "id": "VAL-005",
+      "title": "Missing Network Interface Validation",
+      "severity": "medium",
+      "category": "network_security",
+      "description": "Network interface configuration hardcoded to bind to all interfaces (0.0.0.0) without validation or restriction options.",
+      "location": {"file": "power-meter.go", "line": 15},
+      "evidence": "LISTEN_HOST = \"0.0.0.0\"",
+      "impact": "Service exposed on all network interfaces, potentially accessible from unintended networks",
+      "remediation": "Add configuration validation and consider defaulting to localhost (127.0.0.1) for security",
+      "effort": "low",
+      "validation_type": "network_security"
+    },
+    {
+      "id": "VAL-006",
+      "title": "No Port Number Validation", 
+      "severity": "medium",
+      "category": "input_validation",
+      "description": "TCP port number hardcoded without validation. No check if port is available or within valid range.",
+      "location": {"file": "power-meter.go", "line": 16},
+      "evidence": "LISTEN_PORT = \"9001\"",
+      "impact": "Application may fail to start if port is in use or invalid, no graceful fallback",
+      "remediation": "Add port number validation (1-65535) and implement fallback port selection",
+      "effort": "low", 
+      "validation_type": "network_validation"
+    },
+    {
+      "id": "VAL-007",
+      "title": "Missing GPIO Value Range Validation",
+      "severity": "medium",
+      "category": "input_validation",
+      "description": "GPIO values from hardware not validated before processing. Assumes values are 0 or 1 without verification.",
+      "location": {"file": "power-meter.go", "line": 107},
+      "evidence": "if 1 == value {",
+      "impact": "Unexpected GPIO values could cause incorrect counting or application logic errors",
+      "remediation": "Validate GPIO values are within expected range (0-1) and log unexpected values",
+      "effort": "low",
+      "validation_type": "hardware_validation"
+    },
+    {
+      "id": "VAL-008", 
+      "title": "No Connection Write Error Handling",
+      "severity": "low",
+      "category": "error_handling",
+      "description": "TCP connection write operations performed without checking for errors or partial writes.",
+      "location": {"file": "power-meter.go", "line": 83},
+      "evidence": "conn.Write([]byte(fmt.Sprintf(\"%d\", value)))",
+      "impact": "Silent failure to send data to clients, no indication of network problems",
+      "remediation": "Check Write() return values and handle errors appropriately with logging",
+      "effort": "low",
+      "validation_type": "error_handling"
+    }
+  ],
+  "validation_categories": {
+    "integer_overflow": {
+      "count": 1,
+      "severity": "critical",
+      "description": "Numeric overflow vulnerabilities"
+    },
+    "input_validation": {
+      "count": 3,
+      "severity": "medium",
+      "description": "Missing or insufficient input validation"
+    },
+    "network_security": {
+      "count": 2, 
+      "severity": "high",
+      "description": "Network configuration and security issues"
+    },
+    "error_handling": {
+      "count": 2,
+      "severity": "medium", 
+      "description": "Improper error handling patterns"
+    }
+  },
+  "recommendations": [
+    {
+      "priority": "critical",
+      "category": "overflow_protection",
+      "description": "Implement counter overflow protection to prevent integer wraparound",
+      "implementation": "Add bounds checking before incrementing counter value"
+    },
+    {
+      "priority": "high", 
+      "category": "network_hardening",
+      "description": "Add network security controls including timeouts and connection limits",
+      "implementation": "Implement connection timeouts, rate limiting, and graceful error handling"
+    },
+    {
+      "priority": "medium",
+      "category": "input_validation",
+      "description": "Add comprehensive input validation for all configuration parameters",
+      "implementation": "Validate GPIO pins, network configuration, and hardware inputs"
+    },
+    {
+      "priority": "low",
+      "category": "error_handling", 
+      "description": "Improve error handling to prevent application crashes",
+      "implementation": "Replace os.Exit() calls with proper error handling and logging"
+    }
+  ],
+  "security_score_breakdown": {
+    "input_validation": 5.0,
+    "output_encoding": 8.0,
+    "error_handling": 4.0,
+    "network_security": 6.0,
+    "resource_management": 7.0,
+    "overall": 6.2
+  }
+}
